@@ -1,0 +1,9 @@
+# Dev overrides
+version: '3.8'
+
+services:
+  gateway:
+    volumes:
+      - ./gateway/src:/app/src
+    environment:
+      - NODE_ENV=development

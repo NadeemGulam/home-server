@@ -1,0 +1,45 @@
+# Run everything
+version: '3.8'
+
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - USERS_SERVICE_URL=http://users-service:3002
+      - PRODUCTS_SERVICE_URL=http://products-service:3003
+      - ORDERS_SERVICE_URL=http://orders-service:3004
+    depends_on:
+      - auth-service
+      - users-service
+      - products-service
+      - orders-service
+    networks:
+      - home-server-network
+
+  auth-service:
+    build: ./services/auth-service
+    networks:
+      - home-server-network
+
+  users-service:
+    build: ./services/users-service
+    networks:
+      - home-server-network
+
+  products-service:
+    build: ./services/products-service
+    networks:
+      - home-server-network
+
+  orders-service:
+    build: ./services/orders-service
+    networks:
+      - home-server-network
+
+networks:
+  home-server-network:
+    driver: bridge
