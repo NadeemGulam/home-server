@@ -18,6 +18,7 @@ services:
       - users-service
       - products-service
       - orders-service
+      - portfolio-backend
     networks:
       - home-server-network
 
