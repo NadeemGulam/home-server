@@ -40,6 +40,13 @@ services:
     networks:
       - home-server-network
 
+  portfolio-backend:
+    build: ./services/portfolio-backend
+    ports:
+      - "8002:8002"
+    networks:
+      - home-server-network
+
 networks:
   home-server-network:
     driver: bridge
