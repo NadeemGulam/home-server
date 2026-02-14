@@ -1,4 +1,3 @@
-# Run everything
 version: '3.8'
 
 services:
