@@ -4,7 +4,7 @@ const app = express();
 const PORT = 8002;
 
 // Import routes
-const skillsRouter = require('./routes/skills');
+const skillsRouter = require('./src/routes/skills');
 
 // Use routes
 app.use('/skills', skillsRouter);
