@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 const PORT = 8002;
 
@@ -7,6 +8,17 @@ const PORT = 8002;
 const skillsRouter = require('./src/routes/skills');
 
 // Use routes
+app.use(cors());
+
+/*
+For the Production use case 
+
+app.use(cors({
+  origin: 'https://portfolio-site.com'
+}));
+
+*/
+
 app.use('/skills', skillsRouter);
 
 app.get('/health', (req, res) => {
