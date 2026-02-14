@@ -16,6 +16,10 @@ const services = {
     target: process.env.ORDERS_SERVICE_URL || 'http://orders-service:3004',
     prefix: '/api/v1/orders',
   },
+  portfolio: {
+    target: process.env.PORTFOLIO_SERVICE_URL || 'http://portfolio-backend:8002',
+    prefix: '/api/v1/portfolio',
+  },
 };
 
 module.exports = { services };

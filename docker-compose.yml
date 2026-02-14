@@ -12,6 +12,7 @@ services:
       - USERS_SERVICE_URL=http://users-service:3002
       - PRODUCTS_SERVICE_URL=http://products-service:3003
       - ORDERS_SERVICE_URL=http://orders-service:3004
+      - PORTFOLIO_SERVICE_URL=http://portfolio-backend:8002
     depends_on:
       - auth-service
       - users-service
