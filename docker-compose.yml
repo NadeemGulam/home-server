@@ -59,9 +59,69 @@ services:
     volumes:
       - redis-data:/data
 
+  # Monitoring Stack
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=0s'  # Unlimited retention
+    volumes:
+      - ./infrastructure/prometheus:/etc/prometheus
+      - prometheus-data:/prometheus
+    networks:
+      - home-server-network
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./infrastructure/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./infrastructure/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - home-server-network
+    restart: unless-stopped
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    command:
+      - '--config.file=/etc/alertmanager/config.yml'
+    volumes:
+      - ./infrastructure/alertmanager:/etc/alertmanager
+      - alertmanager-data:/alertmanager
+    networks:
+      - home-server-network
+    restart: unless-stopped
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis:6379
+    networks:
+      - home-server-network
+    depends_on:
+      - redis
+    restart: unless-stopped
+
 networks:
   home-server-network:
     driver: bridge
 
 volumes:
   redis-data:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:

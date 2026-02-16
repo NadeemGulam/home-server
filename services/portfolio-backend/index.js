@@ -6,8 +6,10 @@ const PORT = 8002;
 
 // Import routes
 const skillsRouter = require('./src/routes/skills');
+const { metricsMiddleware, getMetrics } = require('./src/middleware/metrics');
 
-// Use routes
+// Use middleware
+app.use(metricsMiddleware);
 app.use(cors());
 
 /*
@@ -29,13 +31,8 @@ app.get('/health', (req, res) => {
   });
 });
 
-app.get('/metrics', (req, res) => {
-  res.json({
-    status: 'healthy Metrics', 
-    timstamp: new Date(),
-    uptime: process.uptime()
-  });
-});
+// Prometheus metrics endpoint
+app.get('/metrics', getMetrics);
 
 app.listen(PORT, () => {
   console.log(`🚀 PORTFOLIO Backend running on port ${PORT}`);

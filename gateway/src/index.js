@@ -4,15 +4,22 @@ const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { services } = require('./config/services');
 const rateLimiter = require('./middleware/rateLimiter');
+const { metricsMiddleware, getMetrics } = require('./middleware/metrics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Apply metrics collection to all routes
+app.use(metricsMiddleware);
 
 // Apply rate limiting to all API routes
 app.use(rateLimiter);
 
 // Parse JSON bodies
 app.use(express.json());
+
+// Metrics endpoint (for Prometheus)
+app.get('/metrics', getMetrics);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
