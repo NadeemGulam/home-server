@@ -3,9 +3,13 @@ require('dotenv').config();
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { services } = require('./config/services');
+const rateLimiter = require('./middleware/rateLimiter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Apply rate limiting to all API routes
+app.use(rateLimiter);
 
 // Parse JSON bodies
 app.use(express.json());
