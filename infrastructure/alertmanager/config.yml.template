@@ -20,12 +20,30 @@ receivers:
         headers:
           Subject: '🚨 [{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
         html: |
-          <h2>Alert: {{ .GroupLabels.alertname }}</h2>
-          <p><strong>Status:</strong> {{ .Status }}</p>
-          <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
-          <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
-          <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
-          <p><strong>Time:</strong> {{ .CommonAnnotations.timestamp }}</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: {{ if eq .Status "firing" }}#dc3545{{ else }}#28a745{{ end }}; color: white; padding: 15px; border-radius: 8px 8px 0 0;">
+              <h2 style="margin: 0;">🚨 {{ .Status | toUpper }}: {{ .GroupLabels.alertname }}</h2>
+            </div>
+            <div style="border: 1px solid #ddd; padding: 20px; border-radius: 0 0 8px 8px;">
+              {{ range .Alerts }}
+              <table style="width: 100%; border-collapse: collapse; margin-bottom: 15px;">
+                <tr><td style="padding: 8px; font-weight: bold; width: 130px;">Severity:</td><td style="padding: 8px;">{{ .Labels.severity }}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Service:</td><td style="padding: 8px;">{{ .Labels.job }}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Instance:</td><td style="padding: 8px;">{{ .Labels.instance }}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Summary:</td><td style="padding: 8px;">{{ .Annotations.summary }}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Description:</td><td style="padding: 8px;">{{ .Annotations.description }}</td></tr>
+                <tr><td style="padding: 8px; font-weight: bold;">Started At:</td><td style="padding: 8px;">{{ .StartsAt.Format "2006-01-02 15:04:05 UTC" }}</td></tr>
+                {{ if .EndsAt }}<tr><td style="padding: 8px; font-weight: bold;">Ended At:</td><td style="padding: 8px;">{{ .EndsAt.Format "2006-01-02 15:04:05 UTC" }}</td></tr>{{ end }}
+              </table>
+              <hr style="border: 1px solid #eee;">
+              {{ end }}
+              <p style="color: #666; font-size: 12px; margin-top: 15px;">
+                📊 <a href="https://grafana.nadeem-dev.in">Grafana Dashboard</a> |
+                🔍 <a href="https://prometheus.nadeem-dev.in/alerts">Prometheus Alerts</a> |
+                🔔 <a href="https://alerts.nadeem-dev.in">Alertmanager</a>
+              </p>
+            </div>
+          </div>
 
 inhibit_rules:
   - source_match:
