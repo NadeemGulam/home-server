@@ -93,6 +93,10 @@ services:
 
   alertmanager:
     image: prom/alertmanager:latest
+    environment:
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - GMAIL_FROM=${GMAIL_FROM}
+      - ALERT_EMAIL_TO=${ALERT_EMAIL_TO}
     ports:
       - "9093:9093"
     command:
