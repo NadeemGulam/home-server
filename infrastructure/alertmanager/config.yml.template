@@ -1,0 +1,35 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'job']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'console-logger'
+
+receivers:
+  - name: 'console-logger'
+    email_configs:
+      - to: '${ALERT_EMAIL_TO}'
+        from: '${GMAIL_FROM}'
+        smarthost: 'smtp.gmail.com:587'
+        auth_username: '${GMAIL_FROM}'
+        auth_password: '${GMAIL_APP_PASSWORD}'
+        require_tls: true
+        headers:
+          Subject: '🚨 [{{ .Status | toUpper }}] {{ .GroupLabels.alertname }}'
+        html: |
+          <h2>Alert: {{ .GroupLabels.alertname }}</h2>
+          <p><strong>Status:</strong> {{ .Status }}</p>
+          <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
+          <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
+          <p><strong>Time:</strong> {{ .CommonAnnotations.timestamp }}</p>
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'job']
