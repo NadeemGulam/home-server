@@ -13,34 +13,75 @@ services:
       - ORDERS_SERVICE_URL=http://orders-service:3004
       - PORTFOLIO_SERVICE_URL=http://portfolio-backend:8002
     depends_on:
-      - auth-service
-      - users-service
-      - products-service
-      - orders-service
-      - portfolio-backend
-      - redis
+      auth-service:
+        condition: service_healthy
+      users-service:
+        condition: service_healthy
+      products-service:
+        condition: service_healthy
+      orders-service:
+        condition: service_healthy
+      portfolio-backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   auth-service:
     build: ./services/auth-service
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   users-service:
     build: ./services/users-service
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   products-service:
     build: ./services/products-service
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   orders-service:
     build: ./services/orders-service
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   portfolio-backend:
     build: ./services/portfolio-backend
@@ -48,6 +89,13 @@ services:
       - "8002:8002"
     networks:
       - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   redis:
     image: redis:7-alpine
@@ -58,6 +106,13 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   # Monitoring Stack
   prometheus:
@@ -67,13 +122,19 @@ services:
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=0s'  # Unlimited retention
+      - '--storage.tsdb.retention.time=30d'
     volumes:
       - ./infrastructure/prometheus:/etc/prometheus
       - prometheus-data:/prometheus
     networks:
       - home-server-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   grafana:
     image: grafana/grafana:latest
@@ -90,6 +151,12 @@ services:
     networks:
       - home-server-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   alertmanager:
     image: prom/alertmanager:latest
@@ -108,6 +175,12 @@ services:
     networks:
       - home-server-network
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   redis-exporter:
     image: oliver006/redis_exporter:latest
@@ -118,8 +191,15 @@ services:
     networks:
       - home-server-network
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9121/metrics"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
 networks:
   home-server-network:
