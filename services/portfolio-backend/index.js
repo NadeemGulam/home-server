@@ -38,6 +38,20 @@ app.get('/health', (req, res) => {
 // Prometheus metrics endpoint
 app.get('/metrics', getMetrics);
 
+// Suppress aborted request errors (common with fire-and-forget beacons)
+app.use((err, req, res, next) => {
+  if (err && err.type === 'request.aborted') {
+    return res.status(204).end();
+  }
+  next(err);
+});
+
+// Final error logger
+app.use((err, req, res, next) => {
+  console.error('❌ Unhandled error:', err.message);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 PORTFOLIO Backend running on port ${PORT}`);
   console.log(`📊 Health check: http://localhost:${PORT}/health`);
