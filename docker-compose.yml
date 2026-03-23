@@ -79,6 +79,14 @@ services:
     build: ./services/portfolio-backend
     ports:
       - "8002:8002"
+    environment:
+      - REDIS_HOST=redis
+      - GMAIL_FROM=${GMAIL_FROM}
+      - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
+      - ALERT_EMAIL_TO=${ALERT_EMAIL_TO}
+    depends_on:
+      redis:
+        condition: service_healthy
     networks:
       - home-server-network
     restart: unless-stopped
