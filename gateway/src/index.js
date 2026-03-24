@@ -19,8 +19,8 @@ app.use(metricsMiddleware);
 // Apply rate limiting to all API routes
 app.use(rateLimiter);
 
-// Parse JSON bodies
-app.use(express.json());
+// Parse JSON bodies removed to prevent proxy body streaming issues
+// Microservices will handle their own JSON parsing
 
 // Metrics endpoint (for Prometheus)
 app.get('/metrics', getMetrics);
