@@ -1,6 +1,7 @@
 // API Gateway entry point
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const { services } = require('./config/services');
 const rateLimiter = require('./middleware/rateLimiter');
@@ -8,6 +9,9 @@ const { metricsMiddleware, getMetrics } = require('./middleware/metrics');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable CORS for all routes
+app.use(cors());
 
 // Apply metrics collection to all routes
 app.use(metricsMiddleware);
