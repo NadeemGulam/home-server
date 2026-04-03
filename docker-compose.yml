@@ -27,53 +27,69 @@ services:
       retries: 3
       start_period: 15s
 
-  # auth-service:
-  #   build: ./services/auth-service
-  #   networks:
-  #     - home-server-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
-  #     interval: 30s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 15s
+  dashboard:
+    build: 
+      context: ./dashboard
+      args:
+        # Since it's accessed from the browser, we use the host's port 3000 mapping
+        - VITE_GATEWAY_URL=http://localhost:3000
+    ports:
+      - "8080:80"
+    networks:
+      - home-server-network
+    depends_on:
+      gateway:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # users-service:
-  #   build: ./services/users-service
-  #   networks:
-  #     - home-server-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD", "wget", "--spider", "-q", "http://localhost:3002/health"]
-  #     interval: 30s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 15s
 
-  # products-service:
-  #   build: ./services/products-service
-  #   networks:
-  #     - home-server-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD", "wget", "--spider", "-q", "http://localhost:3003/health"]
-  #     interval: 30s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 15s
+  auth-service:
+    build: ./services/auth-service
+    networks:
+      - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
-  # orders-service:
-  #   build: ./services/orders-service
-  #   networks:
-  #     - home-server-network
-  #   restart: unless-stopped
-  #   healthcheck:
-  #     test: ["CMD", "wget", "--spider", "-q", "http://localhost:3004/health"]
-  #     interval: 30s
-  #     timeout: 5s
-  #     retries: 3
-  #     start_period: 15s
+  users-service:
+    build: ./services/users-service
+    networks:
+      - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3002/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  products-service:
+    build: ./services/products-service
+    networks:
+      - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3003/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  orders-service:
+    build: ./services/orders-service
+    networks:
+      - home-server-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3004/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   portfolio-backend:
     build: ./services/portfolio-backend
@@ -139,7 +155,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - "3008:3000"
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin

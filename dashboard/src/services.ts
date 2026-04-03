@@ -1,0 +1,140 @@
+import { ServiceStatus } from './types';
+
+// Service definitions matching your docker-compose.yml
+export const SERVICES: ServiceStatus[] = [
+  {
+    name: 'Nginx',
+    url: '/',
+    port: 80,
+    status: 'unknown',
+    icon: '🔒',
+    category: 'gateway',
+  },
+  {
+    name: 'API Gateway',
+    url: '/health',
+    port: 3000,
+    status: 'unknown',
+    icon: '⚡',
+    category: 'gateway',
+  },
+  {
+    name: 'Auth Service',
+    url: '/health',
+    port: 3001,
+    status: 'unknown',
+    icon: '🔐',
+    category: 'service',
+  },
+  {
+    name: 'Users Service',
+    url: '/health',
+    port: 3002,
+    status: 'unknown',
+    icon: '👥',
+    category: 'service',
+  },
+  {
+    name: 'Products Service',
+    url: '/health',
+    port: 3003,
+    status: 'unknown',
+    icon: '🛍️',
+    category: 'service',
+  },
+  {
+    name: 'Orders Service',
+    url: '/health',
+    port: 3004,
+    status: 'unknown',
+    icon: '📋',
+    category: 'service',
+  },
+  {
+    name: 'Portfolio Backend',
+    url: '/health',
+    port: 8002,
+    status: 'unknown',
+    icon: '💼',
+    category: 'service',
+  },
+  {
+    name: 'Redis',
+    url: '',
+    port: 6379,
+    status: 'unknown',
+    icon: '🔴',
+    category: 'data',
+  },
+  {
+    name: 'Prometheus',
+    url: '/-/healthy',
+    port: 9090,
+    status: 'unknown',
+    icon: '🔍',
+    category: 'monitoring',
+  },
+  {
+    name: 'Grafana',
+    url: '/api/health',
+    port: 3008,
+    status: 'unknown',
+    icon: '📈',
+    category: 'monitoring',
+  },
+  {
+    name: 'Alertmanager',
+    url: '/-/healthy',
+    port: 9093,
+    status: 'unknown',
+    icon: '🔔',
+    category: 'monitoring',
+  },
+  {
+    name: 'Redis Exporter',
+    url: '/metrics',
+    port: 9121,
+    status: 'unknown',
+    icon: '📡',
+    category: 'monitoring',
+  },
+];
+
+const GATEWAY_BASE = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:3000';
+
+export async function checkAllServices(): Promise<ServiceStatus[]> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+    const res = await fetch(`${GATEWAY_BASE}/infrastructure-health`, { signal: controller.signal });
+    clearTimeout(timeout);
+    
+    if (!res.ok) throw new Error('Gateway returned error');
+    
+    const aggregatedData = await res.json() as Partial<ServiceStatus>[];
+    
+    // Merge backend results with our local static definitions (to keep icons, categories, etc.)
+    return SERVICES.map(service => {
+      const backendInfo = aggregatedData.find(s => s.name === service.name);
+      if (backendInfo) {
+        return {
+          ...service,
+          status: backendInfo.status || 'unknown',
+          responseTime: backendInfo.responseTime,
+          uptime: backendInfo.uptime
+        };
+      }
+      return service; // Defaults to 'unknown' if not in payload
+    });
+
+  } catch (err) {
+    console.error("Failed to fetch aggregate health:", err);
+    // Return all as unhealthy if gateway is down
+    return SERVICES.map(service => ({ ...service, status: 'unhealthy' }));
+  }
+}
+
+export async function checkServiceHealth(service: ServiceStatus): Promise<ServiceStatus> {
+  // Not used directly anymore, but kept for type compatibility if needed elsewhere
+  return service;
+}
