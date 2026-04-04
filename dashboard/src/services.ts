@@ -9,6 +9,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔒',
     category: 'gateway',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`
   },
   {
     name: 'API Gateway',
@@ -108,7 +109,7 @@ export const SERVICES: ServiceStatus[] = [
 
 const GATEWAY_BASE = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:3000';
 
-export async function checkAllServices(): Promise<ServiceStatus[]> {
+export async function checkAllServices(previousServices?: ServiceStatus[]): Promise<ServiceStatus[]> {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -118,25 +119,41 @@ export async function checkAllServices(): Promise<ServiceStatus[]> {
     if (!res.ok) throw new Error('Gateway returned error');
     
     const aggregatedData = await res.json() as Partial<ServiceStatus>[];
+    const prevMap = new Map((previousServices || SERVICES).map(s => [s.name, s]));
     
-    // Merge backend results with our local static definitions (to keep icons, categories, etc.)
+    // Merge backend results with our local static definitions
     return SERVICES.map(service => {
       const backendInfo = aggregatedData.find(s => s.name === service.name);
+      const prevService = prevMap.get(service.name);
+      const prevHistory = prevService?.history || [];
+      
+      let newHistory = [...prevHistory];
+      if (backendInfo?.responseTime !== undefined) {
+        newHistory = [...newHistory, backendInfo.responseTime].slice(-15); // store last 15 pings
+      } else if (backendInfo?.status === 'unhealthy') {
+        newHistory = [...newHistory, 0].slice(-15);
+      }
+
       if (backendInfo) {
         return {
           ...service,
           status: backendInfo.status || 'unknown',
           responseTime: backendInfo.responseTime,
-          uptime: backendInfo.uptime
+          uptime: backendInfo.uptime,
+          history: newHistory
         };
       }
-      return service; // Defaults to 'unknown' if not in payload
+      return { ...service, history: prevHistory };
     });
 
   } catch (err) {
     console.error("Failed to fetch aggregate health:", err);
     // Return all as unhealthy if gateway is down
-    return SERVICES.map(service => ({ ...service, status: 'unhealthy' }));
+    const prevMap = new Map((previousServices || SERVICES).map(s => [s.name, s]));
+    return SERVICES.map(service => {
+         const newHistory = [...(prevMap.get(service.name)?.history || []), 0].slice(-15);
+         return { ...service, status: 'unhealthy', history: newHistory };
+    });
   }
 }
 

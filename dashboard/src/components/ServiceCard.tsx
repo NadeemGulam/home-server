@@ -1,5 +1,7 @@
 import { ServiceStatus } from '../types';
 import { ExternalLink, Clock, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { LineChart, Line, ResponsiveContainer } from 'recharts';
 
 interface ServiceCardProps {
   service: ServiceStatus;
@@ -45,11 +47,16 @@ export default function ServiceCard({ service, index }: ServiceCardProps) {
   const cfg = statusConfig[service.status];
   const catColor = categoryColors[service.category];
   const badgeColor = categoryBadge[service.category];
+  const chartData = service.history?.map((val, i) => ({ index: i, value: val })) || [];
 
   return (
-    <div
-      className={`animate-fade-in card-hover relative rounded-2xl border bg-gradient-to-br ${catColor} backdrop-blur-sm p-5 flex flex-col gap-3`}
-      style={{ animationDelay: `${index * 60}ms` }}
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9 }}
+      transition={{ delay: index * 0.05 }}
+      className={`relative rounded-2xl border bg-gradient-to-br ${catColor} backdrop-blur-sm p-5 flex flex-col gap-3 group`}
     >
       {/* Top row */}
       <div className="flex items-start justify-between">
@@ -100,7 +107,25 @@ export default function ServiceCard({ service, index }: ServiceCardProps) {
           </a>
         )}
       </div>
-    </div>
+
+      {/* Sparkline History Plot */}
+      {chartData.length > 1 && (
+        <div className="h-10 mt-1 opacity-50 group-hover:opacity-100 transition-opacity">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke={service.status === 'healthy' ? '#4ade80' : '#f87171'} 
+                strokeWidth={2} 
+                dot={false}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </motion.div>
   );
 }
 

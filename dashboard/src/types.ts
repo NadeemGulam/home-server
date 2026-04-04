@@ -8,6 +8,7 @@ export interface ServiceStatus {
   icon: string;
   category: 'gateway' | 'service' | 'data' | 'monitoring';
   link?: string;
+  history?: number[];
 }
 
 export interface MetricPoint {
