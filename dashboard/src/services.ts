@@ -17,6 +17,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '⚡',
     category: 'gateway',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3000`
   },
   {
     name: 'Auth Service',
@@ -57,6 +58,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '💼',
     category: 'service',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8002`
   },
   {
     name: 'Redis',
@@ -73,6 +75,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔍',
     category: 'monitoring',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9090`
   },
   {
     name: 'Grafana',
@@ -81,6 +84,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '📈',
     category: 'monitoring',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3008`
   },
   {
     name: 'Alertmanager',
@@ -89,6 +93,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔔',
     category: 'monitoring',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9093`
   },
   {
     name: 'Redis Exporter',
@@ -97,6 +102,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '📡',
     category: 'monitoring',
+    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9121`
   },
 ];
 

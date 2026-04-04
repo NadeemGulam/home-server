@@ -7,6 +7,7 @@ export interface ServiceStatus {
   responseTime?: number;
   icon: string;
   category: 'gateway' | 'service' | 'data' | 'monitoring';
+  link?: string;
 }
 
 export interface MetricPoint {

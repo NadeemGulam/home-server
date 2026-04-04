@@ -69,22 +69,35 @@ export default function ServiceCard({ service, index }: ServiceCardProps) {
       </div>
 
       {/* Metrics row */}
-      <div className="flex items-center gap-4 text-xs text-slate-400">
-        <div className="flex items-center gap-1">
-          <ExternalLink size={12} />
-          <span>:{service.port}</span>
+      <div className="flex items-center justify-between mt-1">
+        <div className="flex items-center gap-4 text-xs text-slate-400">
+          <div className="flex items-center gap-1">
+            <ExternalLink size={12} />
+            <span>:{service.port}</span>
+          </div>
+          {service.responseTime !== undefined && (
+            <div className="flex items-center gap-1">
+              <Zap size={12} className="text-amber-400" />
+              <span>{service.responseTime}ms</span>
+            </div>
+          )}
+          {service.uptime !== undefined && (
+            <div className="flex items-center gap-1">
+              <Clock size={12} className="text-cyan-400" />
+              <span>{formatUptime(service.uptime)}</span>
+            </div>
+          )}
         </div>
-        {service.responseTime !== undefined && (
-          <div className="flex items-center gap-1">
-            <Zap size={12} className="text-amber-400" />
-            <span>{service.responseTime}ms</span>
-          </div>
-        )}
-        {service.uptime !== undefined && (
-          <div className="flex items-center gap-1">
-            <Clock size={12} className="text-cyan-400" />
-            <span>{formatUptime(service.uptime)}</span>
-          </div>
+        {service.link && (
+          <a
+            href={service.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[10px] font-semibold flex items-center gap-1 px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-white/70 transition-colors border border-white/10"
+            title={`Open ${service.name}`}
+          >
+            Open <ExternalLink size={10} />
+          </a>
         )}
       </div>
     </div>
