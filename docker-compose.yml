@@ -32,7 +32,7 @@ services:
       context: ./dashboard
       args:
         # Since it's accessed from the browser, we use the host's port 3000 mapping
-        - VITE_GATEWAY_URL=http://localhost:3000
+        - VITE_GATEWAY_URL=https://api.nadeem-dev.in
     ports:
       - "8080:80"
     networks:
