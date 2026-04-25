@@ -9,7 +9,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔒',
     category: 'gateway',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8080`
+    link: 'https://dashboard.nadeem-dev.in'
   },
   {
     name: 'API Gateway',
@@ -18,7 +18,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '⚡',
     category: 'gateway',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3000`
+    link: 'https://api.nadeem-dev.in'
   },
   {
     name: 'Auth Service',
@@ -59,7 +59,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '💼',
     category: 'service',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:8002`
+    link: 'https://api.nadeem-dev.in/api/v1/portfolio'
   },
   {
     name: 'Redis',
@@ -76,7 +76,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔍',
     category: 'monitoring',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9090`
+    link: 'https://prometheus.nadeem-dev.in'
   },
   {
     name: 'Grafana',
@@ -85,7 +85,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '📈',
     category: 'monitoring',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3008`
+    link: 'https://grafana.nadeem-dev.in'
   },
   {
     name: 'Alertmanager',
@@ -94,7 +94,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '🔔',
     category: 'monitoring',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9093`
+    link: 'https://alerts.nadeem-dev.in'
   },
   {
     name: 'Redis Exporter',
@@ -103,7 +103,7 @@ export const SERVICES: ServiceStatus[] = [
     status: 'unknown',
     icon: '📡',
     category: 'monitoring',
-    link: `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:9121`
+    link: 'https://alerts.nadeem-dev.in'
   },
 ];
 
