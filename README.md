@@ -67,7 +67,7 @@ graph TB
         %% ── Monitoring & Observability ──────────────────
         subgraph MONITORING["📊 Monitoring & Observability"]
             PROM["🔍 Prometheus\n:9090\n30d retention"]
-            GRAFANA["📈 Grafana\n:3001\nDashboards"]
+            GRAFANA["📈 Grafana\n:3008\nDashboards"]
             ALERTMGR["🔔 Alertmanager\n:9093\nEmail Alerts"]
             REDIS_EXP["📡 Redis Exporter\n:9121"]
             PROM_VOL[("prometheus-data\nvolume")]
@@ -178,6 +178,6 @@ docker-compose up -d
 | Portfolio Backend | `:8002` |
 | Redis | `:6379` |
 | Prometheus | `:9090` |
-| Grafana | `:3001` |
+| Grafana | `:3008` |
 | Alertmanager | `:9093` |
 | Redis Exporter | `:9121` |
