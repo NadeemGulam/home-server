@@ -27,6 +27,14 @@ jobs:
           tailscale status
           tailscale ip -4 || true
 
+      - name: Check SSH port reachability
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          set -e
+          echo "Checking TCP connectivity to SSH port 22..."
+          timeout 10 bash -lc 'cat < /dev/null > /dev/tcp/"$SERVER_IP"/22' && echo "SSH port 22 is reachable" || { echo "SSH port 22 is not reachable from runner"; exit 1; }
+
       - name: Deploy to Server
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -34,7 +42,6 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           port: 22
-          script_stop: true
           command_timeout: 30m
           script: |
             set -e
