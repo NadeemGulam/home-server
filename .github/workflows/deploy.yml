@@ -22,13 +22,22 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
+      - name: Verify Tailscale connectivity
+        run: |
+          tailscale status
+          tailscale ip -4 || true
+
       - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
+          port: 22
+          script_stop: true
+          command_timeout: 30m
           script: |
-            cd workspace/home-server
-            git pull
-            docker compose up -d --build
+            set -e
+            cd "$HOME/workspace/home-server"
+            git pull --ff-only
+            docker compose up -d --build --remove-orphans
