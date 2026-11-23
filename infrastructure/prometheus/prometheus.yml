@@ -1,4 +1,4 @@
-global:
+﻿global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
@@ -33,6 +33,12 @@ scrape_configs:
   - job_name: 'redis'
     static_configs:
       - targets: ['redis-exporter:9121']
+
+  # OpenTelemetry Collector (OTLP metrics exported for Prometheus scraping)
+  - job_name: 'otel-collector'
+    static_configs:
+      - targets: ['otel-collector:8889']
+    metrics_path: '/metrics'
 
   # Prometheus self-monitoring
   - job_name: 'prometheus'

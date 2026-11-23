@@ -1,4 +1,4 @@
-# Home Server
+﻿# Home Server
 
 Microservices-based home server running on Docker Compose with a full observability stack, CI/CD pipeline, and shared libraries.
 
@@ -6,19 +6,19 @@ Microservices-based home server running on Docker Compose with a full observabil
 
 ```mermaid
 graph TB
-    %% ── External Layer ──────────────────────────────────
-    subgraph EXTERNAL["☁️ External"]
-        USER["👤 User / Browser"]
-        PORTFOLIO_FE["🌐 Portfolio 2.0\n(React Frontend)"]
-        GMAIL["📧 Gmail SMTP"]
+    %% â”€â”€ External Layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    subgraph EXTERNAL["â˜ï¸ External"]
+        USER["ðŸ‘¤ User / Browser"]
+        PORTFOLIO_FE["ðŸŒ Portfolio 2.0\n(React Frontend)"]
+        GMAIL["ðŸ“§ Gmail SMTP"]
     end
 
-    %% ── CI/CD Pipeline ──────────────────────────────────
-    subgraph CICD["🔄 CI/CD Pipeline"]
-        GH["GitHub\n(release/1.0 · master)"]
+    %% â”€â”€ CI/CD Pipeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    subgraph CICD["ðŸ”„ CI/CD Pipeline"]
+        GH["GitHub\n(release/1.0 Â· master)"]
         GHA["GitHub Actions\nRunner"]
         TS["Tailscale VPN\nMesh Network"]
-        SSH["SSH Deploy\ngit pull → docker compose up"]
+        SSH["SSH Deploy\ngit pull â†’ docker compose up"]
     end
 
     GH -->|push trigger| GHA
@@ -26,57 +26,57 @@ graph TB
     TS -->|secure tunnel| SSH
     SSH -->|deploys to| DOCKER
 
-    %% ── Docker Compose Stack ────────────────────────────
-    subgraph DOCKER["🐳 Docker Compose · home-server-network (bridge)"]
+    %% â”€â”€ Docker Compose Stack â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    subgraph DOCKER["ðŸ³ Docker Compose Â· home-server-network (bridge)"]
 
-        %% ── Reverse Proxy ───────────────────────────────
-        NGINX["🔒 Nginx\nReverse Proxy\n:80"]
+        %% â”€â”€ Reverse Proxy â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        NGINX["ðŸ”’ Nginx\nReverse Proxy\n:80"]
 
-        %% ── API Gateway ─────────────────────────────────
-        subgraph GW["⚡ API Gateway · :3000"]
+        %% â”€â”€ API Gateway â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        subgraph GW["âš¡ API Gateway Â· :3000"]
             GATEWAY["Express.js\n+ http-proxy-middleware"]
             RL["Rate Limiter"]
             CORS_MW["CORS"]
             GW_METRICS["Metrics Middleware\n(Prometheus)"]
         end
 
-        %% ── Microservices ───────────────────────────────
-        subgraph SERVICES["📦 Microservices"]
-            AUTH["🔐 Auth Service\n:3001\n/api/v1/auth"]
-            USERS["👥 Users Service\n:3002\n/api/v1/users"]
-            PRODUCTS["🛍️ Products Service\n:3003\n/api/v1/products"]
-            ORDERS["📋 Orders Service\n:3004\n/api/v1/orders"]
-            PORTFOLIO_BE["💼 Portfolio Backend\n:8002\n/api/v1/portfolio"]
+        %% â”€â”€ Microservices â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        subgraph SERVICES["ðŸ“¦ Microservices"]
+            AUTH["ðŸ” Auth Service\n:3001\n/api/v1/auth"]
+            USERS["ðŸ‘¥ Users Service\n:3002\n/api/v1/users"]
+            PRODUCTS["ðŸ›ï¸ Products Service\n:3003\n/api/v1/products"]
+            ORDERS["ðŸ“‹ Orders Service\n:3004\n/api/v1/orders"]
+            PORTFOLIO_BE["ðŸ’¼ Portfolio Backend\n:8002\n/api/v1/portfolio"]
         end
 
-        %% ── Data Layer ──────────────────────────────────
-        subgraph DATA["💾 Data Layer"]
-            REDIS["🔴 Redis 7 Alpine\n:6379\nAOF Persistence"]
+        %% â”€â”€ Data Layer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        subgraph DATA["ðŸ’¾ Data Layer"]
+            REDIS["ðŸ”´ Redis 7 Alpine\n:6379\nAOF Persistence"]
             REDIS_VOL[("redis-data\nvolume")]
         end
 
-        %% ── Shared Libraries ────────────────────────────
-        subgraph SHARED["📚 Shared Libraries"]
-            LIB_AUTH["auth\n(JWT · bcrypt)"]
+        %% â”€â”€ Shared Libraries â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        subgraph SHARED["ðŸ“š Shared Libraries"]
+            LIB_AUTH["auth\n(JWT Â· bcrypt)"]
             LIB_REDIS["redis\n(client)"]
             LIB_LOGGER["logger"]
             LIB_DB["database"]
             LIB_UTILS["utils"]
         end
 
-        %% ── Monitoring & Observability ──────────────────
-        subgraph MONITORING["📊 Monitoring & Observability"]
-            PROM["🔍 Prometheus\n:9090\n30d retention"]
-            GRAFANA["📈 Grafana\n:3008\nDashboards"]
-            ALERTMGR["🔔 Alertmanager\n:9093\nEmail Alerts"]
-            REDIS_EXP["📡 Redis Exporter\n:9121"]
+        %% â”€â”€ Monitoring & Observability â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        subgraph MONITORING["ðŸ“Š Monitoring & Observability"]
+            PROM["ðŸ” Prometheus\n:9090\n30d retention"]
+            GRAFANA["ðŸ“ˆ Grafana\n:3008\nDashboards"]
+            ALERTMGR["ðŸ”” Alertmanager\n:9093\nEmail Alerts"]
+            REDIS_EXP["ðŸ“¡ Redis Exporter\n:9121"]
             PROM_VOL[("prometheus-data\nvolume")]
             GRAFANA_VOL[("grafana-data\nvolume")]
             ALERTMGR_VOL[("alertmanager-data\nvolume")]
         end
     end
 
-    %% ── Traffic Flow ────────────────────────────────────
+    %% â”€â”€ Traffic Flow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     USER -->|HTTPS| NGINX
     PORTFOLIO_FE -->|API calls & beacons| NGINX
     NGINX -->|proxy_pass| GATEWAY
@@ -87,15 +87,15 @@ graph TB
     GATEWAY -->|/api/v1/orders| ORDERS
     GATEWAY -->|/api/v1/portfolio| PORTFOLIO_BE
 
-    %% ── Data Connections ────────────────────────────────
+    %% â”€â”€ Data Connections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     PORTFOLIO_BE -->|visitor data & cache| REDIS
     REDIS --- REDIS_VOL
 
-    %% ── Email Notifications ─────────────────────────────
+    %% â”€â”€ Email Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     PORTFOLIO_BE -->|visitor email alerts| GMAIL
     ALERTMGR -->|alert emails| GMAIL
 
-    %% ── Shared Library Usage ────────────────────────────
+    %% â”€â”€ Shared Library Usage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     AUTH -.->|imports| LIB_AUTH
     AUTH -.->|imports| LIB_REDIS
     USERS -.->|imports| LIB_AUTH
@@ -105,21 +105,21 @@ graph TB
     PORTFOLIO_BE -.->|imports| LIB_REDIS
     GATEWAY -.->|imports| LIB_LOGGER
 
-    %% ── Metrics Scraping ────────────────────────────────
+    %% â”€â”€ Metrics Scraping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     PROM -->|scrape /metrics| GATEWAY
     PROM -->|scrape /metrics| PORTFOLIO_BE
     PROM -->|scrape /metrics| REDIS_EXP
     PROM -->|self-monitor| PROM
     REDIS_EXP -->|reads metrics| REDIS
 
-    %% ── Monitoring Data Flow ────────────────────────────
+    %% â”€â”€ Monitoring Data Flow â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     PROM -->|datasource| GRAFANA
     PROM -->|alert rules| ALERTMGR
     PROM --- PROM_VOL
     GRAFANA --- GRAFANA_VOL
     ALERTMGR --- ALERTMGR_VOL
 
-    %% ── Styles ──────────────────────────────────────────
+    %% â”€â”€ Styles â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     classDef external fill:#1a1a2e,stroke:#e94560,color:#fff
     classDef gateway fill:#0f3460,stroke:#16213e,color:#fff
     classDef service fill:#533483,stroke:#2b2d42,color:#fff
@@ -144,19 +144,19 @@ graph TB
 
 | Directory | Description |
 |---|---|
-| `gateway/` | API Gateway — Express.js with rate limiting, CORS, proxy routing, Prometheus metrics |
+| `gateway/` | API Gateway â€” Express.js with rate limiting, CORS, proxy routing, Prometheus metrics |
 | `services/auth-service/` | Authentication & authorization (JWT, password hashing) |
 | `services/users-service/` | User management |
 | `services/products-service/` | Product catalog |
 | `services/orders-service/` | Order processing |
-| `services/portfolio-backend/` | Portfolio API — skills, visitor tracking, email notifications |
+| `services/portfolio-backend/` | Portfolio API â€” skills, visitor tracking, email notifications |
 | `Portfolio-2.0/` | React frontend for the portfolio site |
-| `shared/` | Shared libraries — auth, redis, logger, database, utils |
+| `shared/` | Shared libraries â€” auth, redis, logger, database, utils |
 | `infrastructure/nginx/` | Nginx reverse proxy configuration |
 | `infrastructure/prometheus/` | Prometheus config & alert rules |
 | `infrastructure/grafana/` | Grafana dashboard provisioning |
 | `infrastructure/alertmanager/` | Alertmanager config & email templates |
-| `.github/workflows/` | CI/CD — GitHub Actions deploy via Tailscale + SSH |
+| `.github/workflows/` | CI/CD â€” GitHub Actions deploy via Tailscale + SSH |
 | `docs/` | Documentation |
 
 ## Getting Started
@@ -164,6 +164,18 @@ graph TB
 ```bash
 docker-compose up -d
 ```
+
+## Observability (OpenTelemetry, industry-standard baseline)
+
+This stack implements OpenTelemetry as the standard for **traces, metrics, and logs** with OTLP transport, semantic resource attributes, and a collector-based pipeline:
+
+- **Instrumentation**: Node.js services preload OpenTelemetry SDK auto-instrumentation (HTTP/Express/Redis, etc.), propagate context, and export telemetry via OTLP.
+- **Collector (`otel-collector`)**: receives OTLP on `:4317` (gRPC) / `:4318` (HTTP), applies `memory_limiter`, `resource` normalization, sensitive-attribute redaction, trace sampling, and `batch` processing, then routes signals to backends.
+- **Traces**: exported to **Grafana Tempo** (OTLP) for storage/query; Grafana is provisioned with Tempo and trace↔log/metric correlations.
+- **Metrics**: OTel metrics are exported through the collector Prometheus exporter (`:8889`) and scraped by Prometheus; existing app `/metrics` endpoints (gateway, portfolio-backend) remain for current dashboards/alerts compatibility.
+- **Logs**: application/console logs are emitted as OTLP log records with trace/span correlation and exported to **Grafana Loki** (OTLP HTTP ingest) for centralized querying and trace correlation.
+- **Configuration**: services use `OTEL_SERVICE_NAME`, `OTEL_EXPORTER_OTLP_ENDPOINT`, `OTEL_SERVICE_NAMESPACE`, and `OTEL_RESOURCE_ATTRIBUTES` for consistent resource identity and environment tagging.
+- **Operational hardening (recommended for non-local exposure)**: enable TLS/mTLS and authentication on OTLP receivers/exporters, tune sampling/retention, and add stricter PII redaction/transforms per data policy.
 
 ## Ports
 
@@ -181,3 +193,11 @@ docker-compose up -d
 | Grafana | `:3008` |
 | Alertmanager | `:9093` |
 | Redis Exporter | `:9121` |
+| OpenTelemetry Collector (OTLP gRPC) | `:4317` |
+| OpenTelemetry Collector (OTLP HTTP) | `:4318` |
+| OpenTelemetry Collector (Prometheus metrics) | `:8889` |
+| OpenTelemetry Collector (health) | `:13133` |
+| Tempo (query/API) | `:3200` |
+| Loki (API) | `:3100` |
+
+

@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 services:
   gateway:
@@ -12,11 +12,17 @@ services:
       - PRODUCTS_SERVICE_URL=http://products-service:3003
       - ORDERS_SERVICE_URL=http://orders-service:3004
       - PORTFOLIO_SERVICE_URL=http://portfolio-backend:8002
+      - OTEL_SERVICE_NAME=gateway
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
     depends_on:
       portfolio-backend:
         condition: service_healthy
       redis:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
@@ -28,7 +34,7 @@ services:
       start_period: 15s
 
   dashboard:
-    build: 
+    build:
       context: ./dashboard
       args:
         # Since it's accessed from the browser, we use the host's port 3000 mapping
@@ -42,54 +48,65 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-
   auth-service:
     build: ./services/auth-service
+    environment:
+      - PORT=3001
+      - OTEL_SERVICE_NAME=auth-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
+    depends_on:
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3001/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
   users-service:
     build: ./services/users-service
+    environment:
+      - PORT=3002
+      - OTEL_SERVICE_NAME=users-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
+    depends_on:
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3002/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
   products-service:
     build: ./services/products-service
+    environment:
+      - PORT=3003
+      - OTEL_SERVICE_NAME=products-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
+    depends_on:
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3003/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
   orders-service:
     build: ./services/orders-service
+    environment:
+      - PORT=3004
+      - OTEL_SERVICE_NAME=orders-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
+    depends_on:
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3004/health"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 15s
 
   portfolio-backend:
     build: ./services/portfolio-backend
@@ -100,9 +117,15 @@ services:
       - GMAIL_FROM=${GMAIL_FROM}
       - GMAIL_APP_PASSWORD=${GMAIL_APP_PASSWORD}
       - ALERT_EMAIL_TO=${ALERT_EMAIL_TO}
+      - OTEL_SERVICE_NAME=portfolio-backend
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAMESPACE=home-server
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=production,service.version=1.0.0
     depends_on:
       redis:
         condition: service_healthy
+      otel-collector:
+        condition: service_started
     networks:
       - home-server-network
     restart: unless-stopped
@@ -129,6 +152,49 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.114.0
+    command: ["--config=/etc/otelcol-contrib/config.yaml"]
+    volumes:
+      - ./infrastructure/otel-collector/config.yaml:/etc/otelcol-contrib/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus exporter (OTel metrics)
+      - "13133:13133" # Collector health check
+    depends_on:
+      tempo:
+        condition: service_started
+      loki:
+        condition: service_started
+    networks:
+      - home-server-network
+    restart: unless-stopped
+
+  tempo:
+    image: grafana/tempo:2.5.0
+    command: ["-config.file=/etc/tempo.yaml"]
+    volumes:
+      - ./infrastructure/tempo/tempo.yaml:/etc/tempo.yaml:ro
+      - tempo-data:/var/tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP/query
+    networks:
+      - home-server-network
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:3.2.1
+    command: ["-config.file=/etc/loki/local-config.yaml"]
+    volumes:
+      - ./infrastructure/loki/loki-config.yaml:/etc/loki/local-config.yaml:ro
+      - loki-data:/loki
+    ports:
+      - "3100:3100"   # Loki HTTP/API
+    networks:
+      - home-server-network
+    restart: unless-stopped
 
   # Monitoring Stack
   prometheus:
@@ -226,3 +292,5 @@ volumes:
   prometheus-data:
   grafana-data:
   alertmanager-data:
+  tempo-data:
+  loki-data:
