@@ -35,16 +35,39 @@ jobs:
           echo "Checking TCP connectivity to SSH port 22..."
           timeout 10 bash -lc 'cat < /dev/null > /dev/tcp/"$SERVER_IP"/22' && echo "SSH port 22 is reachable" || { echo "SSH port 22 is not reachable from runner"; exit 1; }
 
+      - name: Probe SSH
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+        run: |
+          ssh-keyscan -T 10 "$SERVER_IP" || echo "no SSH banner"
+          tailscale ping -c 2 "$SERVER_IP" || true
+
       - name: Deploy to Server
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: 22
-          command_timeout: 30m
-          script: |
-            set -e
-            cd "$HOME/workspace/home-server"
-            git pull --ff-only
-            docker compose up -d --build --remove-orphans
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          key_file="$HOME/.ssh/deploy_key"
+          printf '%s\n' "$SSH_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          ssh \
+            -i "$key_file" \
+            -p 22 \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+            -o ConnectTimeout=15 \
+            -o ServerAliveInterval=30 \
+            -o ServerAliveCountMax=10 \
+            "$SERVER_USERNAME@$SERVER_IP" 'bash -seuo pipefail' <<'REMOTE'
+          cd "$HOME/workspace/home-server"
+          git pull --ff-only
+          docker compose up -d --build --remove-orphans
+          REMOTE
+
+          rm -f "$key_file"
